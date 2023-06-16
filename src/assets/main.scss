@@ -1,0 +1,60 @@
+@import "./base.scss";
+
+.p-button {
+
+  &.p-button-primary:enabled {
+    background-color: var(--vt-c-blue);
+    color: var(--vt-c-white);
+    font-weight: 600;
+    border-color:  var(--vt-c-blue-dark);
+
+    &:hover {
+      background-color: var(--vt-c-blue-dark);
+      border-color:  var(--vt-c-blue-dark);
+      color: var(--vt-c-white);
+    }
+  }
+
+  &.p-button-secondary:enabled {
+    background-color: var(--vt-c-green);
+    color: var(--vt-c-white);
+    font-weight: 600;
+    border-color:  var(--vt-c-green-dark);
+
+    &:hover {
+      background-color: var(--vt-c-green-dark);
+      border-color:  var(--vt-c-green-dark);
+      color: var(--vt-c-white);
+    }
+  }
+
+  &:focus {
+    box-shadow: none !important;
+  }
+}
+
+.p-component {
+  font-family: 'Manrope', sans-serif;
+}
+
+.section-block {
+  // width: 300px;
+}
+
+.section-title {
+  font-size: 2.1rem;
+  margin-bottom: .6rem;
+  line-height: 1.4;
+}
+
+.section-text {
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.link {
+  color: var(--vt-c-blue);
+  &:hover {
+    opacity: .8;
+  }
+}

@@ -1,0 +1,16 @@
+# src/graphql/users.query.graphql
+
+query GetUsers {
+  users {
+    id
+    name
+    email
+    createdAt
+    expenses {
+      category
+      frequency
+      name
+      provider
+    }
+  }
+}
