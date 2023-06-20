@@ -17,8 +17,8 @@
 
           <div class="expenses" v-else>
             <ul>
-              <li v-for="expense in expenses" :key="expense.title">
-                {{ expense.title }}
+              <li v-for="expense in expenses" :key="expense.name">
+                {{ expense.name }}
               </li>
             </ul>
           </div>
@@ -31,10 +31,10 @@
 <script lang="ts">
 import { ref } from 'vue';
 import { authStore } from '@/stores/auth';
-import { getExpenseeApi } from '@/libs/api';
 import Message from 'primevue/message';
 
-import type Expense from '../../../shared-types/Expense';
+import { useQuery } from '@urql/vue';
+import { GetExpensesDocument, Expense } from '@/graphql/generated';
 
 export default {
   name: 'DashboardView',
@@ -48,10 +48,22 @@ export default {
 
     const fetchExpenses = async () => {
       try {
-        const api = getExpenseeApi();
+        const query = useQuery({
+          query: GetExpensesDocument,
+        });
 
-        const response = await api.fetchExpenses();
-        expenses.value = response.data;
+        const result = await query.executeQuery();
+
+        if (result.data.value?.expenses) {
+          expenses.value = result.data.value?.expenses;
+        }
+
+
+        if (result.error.value) {
+          console.log(result.error.value.graphQLErrors[0].extensions?.code);
+          errorMessage.value = result.error.value.graphQLErrors[0].message;
+        }
+          
       } catch (error: any) {
         if (error.data) errorMessage.value = error.data.message;
       }

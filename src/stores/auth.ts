@@ -1,35 +1,95 @@
 import { defineStore } from 'pinia';
-import { getAuthApi } from '@/libs/authApi';
-import { User } from '@/libs/user';
 import jwt from '../libs/jwt';
 import router from '../router';
+import {
+  User,
+  LoginMutationVariables,
+  LoginInput,
+  LoginMutation,
+} from '@/graphql/generated';
+import { UseMutationResponse } from '@urql/vue';
+
+type IAlert = {
+  message: string;
+};
 
 type AuthState = {
   user: User;
+  alert: IAlert | null;
+};
+
+const userDefault: User = {
+  id: '-1',
+  email: '',
+  name: '',
+  createdAt: '',
 };
 
 export const authStore = defineStore('auth', {
   state: (): AuthState => {
     return {
-      user: new User(),
+      user: {
+        ...userDefault,
+      },
+      alert: null,
     };
   },
 
   getters: {
     isLoggedIn(state): boolean {
-      return state.user.email ? true : false;
+      return state.user.id !== '-1' ? true : false;
     },
   },
   actions: {
-    async login(email: string, password: string) {
-      const api = getAuthApi();
-      const response = await api.login(email, password);
+    async login(
+      loginMutation: UseMutationResponse<LoginMutation>,
+      inputEmail: string,
+      inputPassword: string
+    ) {
+      const loginInput: LoginInput = {
+        email: inputEmail,
+        password: inputPassword,
+      };
+      const loginVars: LoginMutationVariables = {
+        loginInput: loginInput,
+      };
 
-      this.user = new User(response.data.user);
+      const result = await loginMutation.executeMutation(loginVars);
+
+      if (result.error) {
+        throw new Error(result.error.graphQLErrors[0].message);
+      }
+
+      if (
+        !result.data?.login?.jwt?.access ||
+        !result.data?.login?.jwt?.refresh
+      ) {
+        throw new Error('Something went wrong');
+      }
+
+      this.alert = null;
+      jwt.setAccessToken(result.data?.login?.jwt?.access);
+      jwt.setRefreshToken(result.data?.login?.jwt?.refresh);
+
+      const user = result.data?.login?.user ?? {};
+
+      this.user = {
+        ...user,
+      };
+    },
+
+    forceLogout(): void {
+      this.alert = {
+        message: 'Your session has expired, please relogin.',
+      };
+
+      this.logout();
     },
 
     logout(): void {
-      this.user = new User();
+      this.user = {
+        ...userDefault,
+      };
       jwt.clearTokens();
 
       router.push({

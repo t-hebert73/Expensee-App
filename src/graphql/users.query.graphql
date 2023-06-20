@@ -1,16 +1,31 @@
 # src/graphql/users.query.graphql
 
-query GetUsers {
-  users {
-    id
-    name
-    email
-    createdAt
-    expenses {
-      category
-      frequency
-      name
-      provider
+# query GetUsers {
+#   users {
+#     id
+#     name
+#     email
+#     createdAt
+#     expenses {
+#       category
+#       frequency
+#       name
+#       provider
+#     }
+#   }
+# }
+
+mutation login($loginInput: LoginInput!) {
+  login(loginInput: $loginInput){
+    user {
+      id,
+      name,
+      email,
+      createdAt
+    },
+    jwt {
+      access,
+      refresh
     }
   }
 }

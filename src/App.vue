@@ -6,15 +6,41 @@
 
 <script lang="ts">
 import { Client, provideClient, cacheExchange, fetchExchange } from '@urql/vue';
+import { authExchange } from '@urql/exchange-auth';
+import jwt from './libs/jwt';
+import { authStore } from './stores/auth';
 
 export default {
   name: 'App',
 
   setup() {
-    console.log(import.meta.env.VITE_API_URL);
+    const auth = authStore();
+
     const client = new Client({
       url: import.meta.env.VITE_API_URL || 'http://localhost:4000/graphql',
-      exchanges: [cacheExchange, fetchExchange],
+      exchanges: [
+        cacheExchange,
+        authExchange(async (utils) => {
+          return {
+            addAuthToOperation(operation) {
+              const token = jwt.getAccessToken();
+              if (!token) return operation;
+              return utils.appendHeaders(operation, {
+                Authorization: `Bearer ${token}`,
+              });
+            },
+            didAuthError(error) {
+              return error.graphQLErrors.some(
+                (e) => e.extensions?.code === 'FORBIDDEN'
+              );
+            },
+            async refreshAuth() {
+              auth.forceLogout();
+            },
+          };
+        }),
+        fetchExchange,
+      ],
     });
 
     provideClient(client);

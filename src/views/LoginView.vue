@@ -35,28 +35,6 @@
         </form>
       </div>
     </section>
-
-    <section class="grid grid-nogutter" v-if="data">
-      <div
-        class="col-4 col-offset-4 p-5"
-        v-for="user in data.users"
-        :key="user.email"
-      >
-        <h3>{{ user.name }}</h3>
-        <div>id: {{ user.id }}</div>
-        <div>created: {{ user.createdAt }}</div>
-        <div class="mt-5">
-          <h5>Expenses</h5>
-          <div
-            class="expense"
-            v-for="expense in user.expenses"
-            :key="'exp' + expense.name"
-          >
-            {{ expense.name }} - {{ expense.category }}
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
 
@@ -65,12 +43,12 @@ import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Message from 'primevue/message';
 
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import { authStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import jwt from '../libs/jwt';
-import { useQuery } from '@urql/vue';
-import { GetUsersDocument } from '@/graphql/generated';
+import { LoginDocument } from '@/graphql/generated';
+import { useMutation } from '@urql/vue';
 
 export default defineComponent({
   name: 'LoginView',
@@ -83,23 +61,25 @@ export default defineComponent({
 
     const email = ref('');
     const password = ref('');
-    let errorMessage = ref('');
     const jwtObj = jwt;
+
+    const loginMutation = useMutation(LoginDocument);
+    let validationErrorMsg = '';
 
     const login = async () => {
       try {
-        await auth.login(email.value, password.value);
+        await auth.login(loginMutation, email.value, password.value);
 
         router.push({
           name: 'dashboard',
         });
       } catch (error: any) {
-        errorMessage.value = error.data.message;
+        validationErrorMsg = error.message;
       }
     };
 
-    const result = useQuery({
-      query: GetUsersDocument,
+    const errorMessage = computed(() => {
+      return auth.alert?.message ? auth.alert.message : validationErrorMsg;
     });
 
     return {
@@ -109,7 +89,6 @@ export default defineComponent({
       login,
       user: auth.user,
       jwtObj,
-      data: result.data,
     };
   },
 });
