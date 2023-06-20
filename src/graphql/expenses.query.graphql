@@ -6,11 +6,5 @@ query getExpenses {
     category
     provider
     createdAt
-    payments {
-      amount
-      createdAt
-      id
-      paidAt
-    }
   }
 }

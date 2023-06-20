@@ -16,7 +16,10 @@
       <header>
         <div class="grid grid-nogutter align-items-center">
           <div class="col-12 p-3">
-            <div class="flex justify-content-end flex-wrap h-full">
+            <div class="flex justify-content-between flex-wrap h-full">
+              <div class="page-title">
+                <span>{{ pageTitle }}</span>
+              </div>
               <a href="#" @click.prevent="toggle" class="user">
                 {{ user.name }}
               </a>
@@ -39,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
 import type { Ref } from 'vue';
 import { authStore } from '@/stores/auth';
 import Menu from 'primevue/menu';
@@ -91,7 +94,18 @@ export default defineComponent({
       },
     ];
 
-    return { user: auth.user, dropdownItems, toggle, menu, sideNavItems };
+    const pageTitle = computed(() => {
+      return router.currentRoute.value.meta.title;
+    });
+
+    return {
+      user: auth.user,
+      dropdownItems,
+      toggle,
+      menu,
+      sideNavItems,
+      pageTitle,
+    };
   },
 });
 </script>
@@ -161,10 +175,15 @@ export default defineComponent({
   flex-grow: 1;
   flex-shrink: 1;
   background-color: var(--vt-c-soft-white);
+  overflow: scroll;
 }
 
 header {
   background-color: var(--vt-c-white);
+
+  .page-title {
+    font-size: 1.5rem;
+  }
 
   .user {
     color: var(--vt-c-black);
