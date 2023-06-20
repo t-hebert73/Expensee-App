@@ -8,7 +8,7 @@
       </div>
 
       <div class="nav-section">
-        <Menu id="overlay_menu2" ref="side-nav" :model="sideNavItems" />
+        <Menu id="menu_side_nav" ref="side-nav" :model="sideNavItems" />
       </div>
     </div>
 
@@ -137,33 +137,42 @@ export default defineComponent({
     }
   }
 
-  .p-menu {
-    margin-top: 1rem;
-    background-color: transparent;
-    border: none;
-    width: 100%;
+  #menu_side_nav {
+    &.p-menu {
+      margin-top: 1rem;
+      background-color: transparent;
+      border: none;
+      width: 100%;
 
-    .p-menuitem {
-      &-link {
-        padding: 1.2rem 2rem;
-
-        .p-menuitem-icon {
-          margin-right: 1rem;
+      .p-menuitem {
+        &.p-focus {
+          .p-menuitem-content {
+            background-color: var(--vt-c-blue-dark);
+          }
         }
+        .p-menuitem-content {
+          .p-menuitem-link {
+            padding: 1.2rem 2rem;
 
-        .p-menuitem-icon,
-        .p-menuitem-text {
-          color: white;
-          font-size: 1.2rem;
-          font-weight: 600;
-        }
+            .p-menuitem-icon {
+              margin-right: 1rem;
+            }
 
-        &:hover {
-          background-color: var(--vt-c-blue-dark);
+            .p-menuitem-icon,
+            .p-menuitem-text {
+              color: white;
+              font-size: 1.2rem;
+              font-weight: 600;
+            }
 
-          .p-menuitem-icon,
-          .p-menuitem-text {
-            color: white;
+            &:hover {
+              background-color: var(--vt-c-blue-dark);
+
+              .p-menuitem-icon,
+              .p-menuitem-text {
+                color: white;
+              }
+            }
           }
         }
       }

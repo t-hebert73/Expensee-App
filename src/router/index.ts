@@ -62,6 +62,14 @@ const router = createRouter({
             title: 'Manage',
           },
         },
+        {
+          path: '/manage/:id',
+          name: 'edit.expense',
+          component: () => import('@/views/EditExpense.vue'),
+          meta: {
+            title: 'Edit',
+          },
+        },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: { name: 'login' } },

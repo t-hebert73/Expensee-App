@@ -12,13 +12,15 @@
       <div class="col-2">
         <div class="flex justify-content-end flex-wrap h-full">
           <router-link :to="{ name: 'signup' }" v-slot="{ navigate }">
-            <Button @click="navigate" class="p-button-secondary">
+            <Button @click="navigate" rounded class="p-button-secondary">
               Sign up
             </Button>
           </router-link>
 
           <router-link :to="{ name: 'login' }" v-slot="{ navigate }">
-            <Button @click="navigate" class="p-button-link"> Sign in </Button>
+            <Button @click="navigate" rounded class="p-button-link">
+              Sign in
+            </Button>
           </router-link>
         </div>
       </div>

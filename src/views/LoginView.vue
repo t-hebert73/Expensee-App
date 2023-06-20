@@ -29,6 +29,7 @@
             type="submit"
             @click.prevent="login"
             class="p-button-primary mt-5"
+            rounded
           >
             Sign in
           </Button>

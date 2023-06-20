@@ -24,6 +24,7 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
+import { defineComponent } from 'vue';
 
 ChartJS.register(
   Title,
@@ -35,7 +36,7 @@ ChartJS.register(
   LinearScale
 );
 
-export default {
+export default defineComponent({
   name: 'AggregateChart',
   components: { Line, Card },
   data() {
@@ -78,5 +79,5 @@ export default {
       };
     },
   },
-};
+});
 </script>
