@@ -1,6 +1,14 @@
 <template>
   <Card>
     <template #content>
+      <div class="flex gap-2 justify-content-between mb-5">
+        <div>Create, edit and remove your expenses.</div>
+        <Button
+          @click="navigateToCreateExpense"
+          rounded
+          label="New Expense"
+        ></Button>
+      </div>
       <DataTable
         :value="expenses"
         stripedRows
@@ -69,11 +77,19 @@ export default defineComponent({
       const result = await query.executeQuery();
 
       if (result.data.value?.expenses) {
-        expenses.value = result.data.value?.expenses;
+        expenses.value = result.data.value?.expenses.sort((a, b) => {
+          return a.name < b.name ? -1 : 1;
+        });
       }
     };
 
     fetchExpenses();
+
+    const navigateToCreateExpense = () => {
+      router.push({
+        name: 'create.expense',
+      });
+    };
 
     const navigateToEditExpense = (expense: Expense) => {
       router.push({
@@ -92,6 +108,7 @@ export default defineComponent({
 
     return {
       expenses,
+      navigateToCreateExpense,
       navigateToEditExpense,
       navigateToEditPayments,
       deleteExpense,

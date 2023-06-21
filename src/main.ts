@@ -14,7 +14,10 @@ import 'primeflex/primeflex.css';
 
 import './assets/main.scss';
 
+import ToastService from 'primevue/toastservice';
+
 const app = createApp(App);
+app.use(ToastService);
 
 app.use(PrimeVue);
 app.use(storePlugin);

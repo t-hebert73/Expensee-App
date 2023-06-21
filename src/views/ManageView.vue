@@ -14,7 +14,7 @@ import ExpensesTable from '@/components/ExpensesTable.vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'DashboardView',
+  name: 'ManageView',
 
   components: { ExpensesTable },
 
@@ -25,5 +25,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped></style>

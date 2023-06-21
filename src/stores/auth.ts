@@ -83,6 +83,10 @@ export const authStore = defineStore('auth', {
         message: 'Your session has expired, please relogin.',
       };
 
+      setTimeout(() => {
+        this.alert = null;
+      }, 20000);
+
       this.logout();
     },
 

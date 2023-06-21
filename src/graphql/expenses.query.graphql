@@ -8,3 +8,26 @@ query getExpenses {
     createdAt
   }
 }
+
+query getExpense($id: Int!) {
+  expense(id: $id) {
+    id
+    name
+    frequency
+    category
+    provider
+    createdAt
+  }
+}
+
+mutation createExpense($expenseInput: ExpenseInput!) {
+  createExpense(expenseInput: $expenseInput){
+    id
+  }
+}
+
+mutation updateExpense($id: Int!, $expenseInput: ExpenseInput!) {
+  updateExpense(id: $id, expenseInput: $expenseInput){
+    id
+  }
+}

@@ -59,15 +59,23 @@ const router = createRouter({
           name: 'manage',
           component: () => import('@/views/ManageView.vue'),
           meta: {
-            title: 'Manage',
+            title: 'Manage Expenses',
+          },
+        },
+        {
+          path: '/manage/new',
+          name: 'create.expense',
+          component: () => import('@/views/ManageExpenseView.vue'),
+          meta: {
+            title: 'Create Expense',
           },
         },
         {
           path: '/manage/:id',
           name: 'edit.expense',
-          component: () => import('@/views/EditExpense.vue'),
+          component: () => import('@/views/ManageExpenseView.vue'),
           meta: {
-            title: 'Edit',
+            title: 'Edit Expense',
           },
         },
       ],

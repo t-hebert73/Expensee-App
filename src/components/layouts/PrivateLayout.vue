@@ -21,7 +21,9 @@
                 <span>{{ pageTitle }}</span>
               </div>
               <a href="#" @click.prevent="toggle" class="user">
-                {{ user.name }}
+                <Avatar icon="pi pi-user" shape="circle" /><span class="ml-2">{{
+                  user.name
+                }}</span>
               </a>
               <Menu
                 id="overlay_menu"
@@ -48,10 +50,11 @@ import { authStore } from '@/stores/auth';
 import Menu from 'primevue/menu';
 import type MenuType from 'primevue/menu/Menu';
 import { useRouter } from 'vue-router';
+import Avatar from 'primevue/avatar';
 
 export default defineComponent({
   name: 'PrivateLayout',
-  components: { Menu },
+  components: { Menu, Avatar },
 
   setup() {
     const auth = authStore();
@@ -192,6 +195,11 @@ header {
 
   .page-title {
     font-size: 1.5rem;
+  }
+
+  .p-avatar-circle {
+    background-color: var(--vt-c-blue);
+    color: white;
   }
 
   .user {
