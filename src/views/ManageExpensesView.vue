@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import ExpensesTable from '@/components/ExpensesTable.vue';
+import ExpensesTable from '@/components/expenses/ExpensesTable.vue';
 import { defineComponent } from 'vue';
 
 export default defineComponent({

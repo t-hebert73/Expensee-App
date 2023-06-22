@@ -15,9 +15,11 @@ import 'primeflex/primeflex.css';
 import './assets/main.scss';
 
 import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
 
 const app = createApp(App);
 app.use(ToastService);
+app.use(ConfirmationService);
 
 app.use(PrimeVue);
 app.use(storePlugin);

@@ -1,13 +1,19 @@
 <template>
-  <ExpenseForm :expense="expense"></ExpenseForm>
+  <div class="page-manage">
+    <section class="grid grid-nogutter">
+      <div class="col-12">
+        <PaymentsTable v-if="expense" :expense="expense"></PaymentsTable>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import ExpenseForm from '@/components/expenses/ExpenseForm.vue';
+import PaymentsTable from '@/components/payments/PaymentsTable.vue';
 import { useQuery } from '@urql/vue';
-import { GetExpenseDocument, Expense } from '@/graphql/generated';
+import { GetExpenseWithPaymentsDocument, Expense } from '@/graphql/generated';
 
 export default defineComponent({
   setup() {
@@ -21,7 +27,7 @@ export default defineComponent({
 
     const fetchExpense = async (id: number) => {
       const query = useQuery({
-        query: GetExpenseDocument,
+        query: GetExpenseWithPaymentsDocument,
         variables: {
           id,
         },
@@ -38,6 +44,6 @@ export default defineComponent({
 
     return { expense };
   },
-  components: { ExpenseForm },
+  components: { PaymentsTable },
 });
 </script>

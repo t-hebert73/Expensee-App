@@ -1,0 +1,26 @@
+query getPayment($id: Int!) {
+  payment(id: $id) {
+    id
+    amount
+    paidAt
+    createdAt
+  }
+}
+
+mutation createPayment($expenseId: Int!, $paymentInput: PaymentInput!) {
+  createPayment(expenseId: $expenseId, paymentInput: $paymentInput){
+    id
+  }
+}
+
+mutation updatePayment($id: Int!, $paymentInput: PaymentInput!) {
+  updatePayment(id: $id, paymentInput: $paymentInput){
+    id
+  }
+}
+
+mutation deletePayment($id: Int!) {
+  deletePayment(id: $id){
+    id
+  }
+}

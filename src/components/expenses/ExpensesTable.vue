@@ -36,7 +36,7 @@
               class="mr-3"
             ></Button>
             <Button
-              @click="deleteExpense(data, index)"
+              @click="deleteExpense($event, data, index)"
               severity="danger"
               rounded
               icon="pi pi-trash"
@@ -48,11 +48,13 @@
       </DataTable>
     </template>
   </Card>
+  <ConfirmPopup></ConfirmPopup>
 </template>
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue';
 import { useQuery, useMutation } from '@urql/vue';
+import ConfirmPopup from 'primevue/confirmpopup';
 import {
   GetExpensesDocument,
   Expense,
@@ -65,11 +67,12 @@ import Card from 'primevue/card';
 import Button from 'primevue/button';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 
 export default defineComponent({
   name: 'ExpensesTable',
 
-  components: { DataTable, Column, Card, Button },
+  components: { DataTable, Column, Card, Button, ConfirmPopup },
 
   setup() {
     const router = useRouter();
@@ -107,32 +110,52 @@ export default defineComponent({
       });
     };
     const navigateToEditPayments = (expense: Expense) => {
-      console.log(expense.id);
+      router.push({
+        name: 'manage.payments',
+        params: {
+          id: expense.id,
+        },
+      });
     };
 
     const deleteExpenseMutation = useMutation(DeleteExpenseDocument);
+    const confirm = useConfirm();
 
-    const deleteExpense = async (expense: Expense, index: number) => {
-      const mutationVars: DeleteExpenseMutationVariables = {
-        id: parseInt(expense.id),
-      };
+    const deleteExpense = async (
+      event: any,
+      expense: Expense,
+      index: number
+    ) => {
+      confirm.require({
+        target: event.currentTarget,
+        message: 'Do you want to delete this record?',
+        acceptIcon: 'pi pi-trash',
+        acceptClass: 'p-button-danger',
+        accept: async () => {
+          const mutationVars: DeleteExpenseMutationVariables = {
+            id: parseInt(expense.id),
+          };
 
-      const result = await deleteExpenseMutation.executeMutation(mutationVars);
+          const result = await deleteExpenseMutation.executeMutation(
+            mutationVars
+          );
 
-      const toastSeverity = result.error ? 'error' : 'success';
-      const toastSummary = result.error ? 'Error' : 'Success';
-      const toastDetail = result.error
-        ? result.error.graphQLErrors[0].message
-        : 'Successfully deleted expense';
+          const toastSeverity = result.error ? 'error' : 'success';
+          const toastSummary = result.error ? 'Error' : 'Success';
+          const toastDetail = result.error
+            ? result.error.graphQLErrors[0].message
+            : 'Successfully deleted expense';
 
-      toast.add({
-        severity: toastSeverity,
-        summary: toastSummary,
-        detail: toastDetail,
-        life: 5000,
+          toast.add({
+            severity: toastSeverity,
+            summary: toastSummary,
+            detail: toastDetail,
+            life: 5000,
+          });
+
+          expenses.value.splice(index, 1);
+        },
       });
-
-      expenses.value.splice(index, 1);
     };
 
     return {

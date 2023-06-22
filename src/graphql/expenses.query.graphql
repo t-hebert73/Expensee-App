@@ -20,6 +20,23 @@ query getExpense($id: Int!) {
   }
 }
 
+query getExpenseWithPayments($id: Int!) {
+  expense(id: $id) {
+    id
+    name
+    frequency
+    category
+    provider
+    createdAt
+    payments {
+      id
+      amount
+      paidAt
+      createdAt
+    }
+  }
+}
+
 mutation createExpense($expenseInput: ExpenseInput!) {
   createExpense(expenseInput: $expenseInput){
     id

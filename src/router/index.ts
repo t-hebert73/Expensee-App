@@ -57,7 +57,7 @@ const router = createRouter({
         {
           path: '/manage',
           name: 'manage',
-          component: () => import('@/views/ManageView.vue'),
+          component: () => import('@/views/ManageExpensesView.vue'),
           meta: {
             title: 'Manage Expenses',
           },
@@ -76,6 +76,30 @@ const router = createRouter({
           component: () => import('@/views/ManageExpenseView.vue'),
           meta: {
             title: 'Edit Expense',
+          },
+        },
+        {
+          path: '/manage/:id/payments',
+          name: 'manage.payments',
+          component: () => import('@/views/ManagePaymentsView.vue'),
+          meta: {
+            title: 'Manage Payments',
+          },
+        },
+        {
+          path: '/manage/:id/payments/new',
+          name: 'create.payment',
+          component: () => import('@/views/ManagePaymentView.vue'),
+          meta: {
+            title: 'Create Payment',
+          },
+        },
+        {
+          path: '/manage/:id/payments/:paymentId',
+          name: 'edit.payment',
+          component: () => import('@/views/ManagePaymentView.vue'),
+          meta: {
+            title: 'Edit Payment',
           },
         },
       ],

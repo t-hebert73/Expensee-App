@@ -1,5 +1,6 @@
 <template>
   <Card>
+    <template #title>Editing {{ activeExpense.name }} Expense</template>
     <template #content>
       <Message
         v-if="validationErrorMsg"
@@ -190,29 +191,29 @@ export default defineComponent({
       mutationVars:
         | CreateExpenseMutationVariables
         | UpdateExpenseMutationVariables,
-      succesMsg: string
+      successMsg: string
     ) => {
-      try {
-        const result = await mutation.executeMutation(mutationVars);
+      const result = await mutation.executeMutation(mutationVars);
 
-        if (result.error) {
-          validationErrorMsg.value = result.error.graphQLErrors[0].message;
-        }
+      const toastSeverity = result.error ? 'error' : 'success';
+      const toastSummary = result.error ? 'Error' : 'Success';
+      const toastDetail = result.error
+        ? result.error.graphQLErrors[0].message
+        : successMsg;
 
-        onSuccessfulAction(succesMsg);
-      } catch (error: any) {
-        validationErrorMsg.value = error.message;
-      }
-    };
-
-    const onSuccessfulAction = (successMsg: string) => {
       toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: successMsg,
+        severity: toastSeverity,
+        summary: toastSummary,
+        detail: toastDetail,
         life: 5000,
       });
 
+      if (!result.error) {
+        onSuccessfulAction();
+      }
+    };
+
+    const onSuccessfulAction = () => {
       router.push({
         name: 'manage',
       });
