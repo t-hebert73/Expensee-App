@@ -29,3 +29,9 @@ mutation login($loginInput: LoginInput!) {
     }
   }
 }
+
+mutation register($registerInput: RegisterInput!) {
+  register(registerInput: $registerInput) {
+    status
+  }
+}

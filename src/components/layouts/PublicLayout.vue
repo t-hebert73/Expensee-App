@@ -30,14 +30,18 @@
   <div class="page">
     <router-view></router-view>
   </div>
+
+  <Toast position="bottom-right" />
 </template>
 
 <script lang="ts">
 import Button from 'primevue/button';
 import { defineComponent } from 'vue';
+import Toast from 'primevue/toast';
+
 export default defineComponent({
   name: 'PublicLayout',
-  components: { Button },
+  components: { Button, Toast },
 });
 </script>
 

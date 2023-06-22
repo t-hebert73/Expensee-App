@@ -6,6 +6,9 @@ import {
   LoginMutationVariables,
   LoginInput,
   LoginMutation,
+  RegisterMutation,
+  RegisterInput,
+  RegisterMutationVariables,
 } from '@/graphql/generated';
 import { UseMutationResponse } from '@urql/vue';
 
@@ -16,6 +19,13 @@ type IAlert = {
 type AuthState = {
   user: User;
   alert: IAlert | null;
+};
+
+type IRegisterData = {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
 };
 
 const userDefault: User = {
@@ -41,6 +51,24 @@ export const authStore = defineStore('auth', {
     },
   },
   actions: {
+    async register(
+      registerMutation: UseMutationResponse<RegisterMutation>,
+      registerData: IRegisterData
+    ) {
+      const registerInput: RegisterInput = {
+        ...registerData,
+      };
+      const registerVars: RegisterMutationVariables = {
+        registerInput,
+      };
+
+      const result = await registerMutation.executeMutation(registerVars);
+
+      if (result.error) {
+        throw new Error(result.error.graphQLErrors[0].message);
+      }
+    },
+
     async login(
       loginMutation: UseMutationResponse<LoginMutation>,
       inputEmail: string,

@@ -65,7 +65,7 @@ export default defineComponent({
     const jwtObj = jwt;
 
     const loginMutation = useMutation(LoginDocument);
-    let validationErrorMsg = '';
+    const validationErrorMsg = ref<string>();
 
     const login = async () => {
       try {
@@ -75,12 +75,14 @@ export default defineComponent({
           name: 'dashboard',
         });
       } catch (error: any) {
-        validationErrorMsg = error.message;
+        validationErrorMsg.value = error.message;
       }
     };
 
     const errorMessage = computed(() => {
-      return auth.alert?.message ? auth.alert.message : validationErrorMsg;
+      return auth.alert?.message
+        ? auth.alert.message
+        : validationErrorMsg.value;
     });
 
     return {

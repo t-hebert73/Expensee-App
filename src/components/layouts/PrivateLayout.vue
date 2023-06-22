@@ -41,6 +41,7 @@
       </div>
     </div>
   </div>
+  <Toast position="bottom-right" />
 </template>
 
 <script lang="ts">
@@ -51,10 +52,11 @@ import Menu from 'primevue/menu';
 import type MenuType from 'primevue/menu/Menu';
 import { useRouter } from 'vue-router';
 import Avatar from 'primevue/avatar';
+import Toast from 'primevue/toast';
 
 export default defineComponent({
   name: 'PrivateLayout',
-  components: { Menu, Avatar },
+  components: { Menu, Avatar, Toast },
 
   setup() {
     const auth = authStore();

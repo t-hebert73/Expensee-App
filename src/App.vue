@@ -1,7 +1,6 @@
 <template>
   <router-view v-slot="{ Component }">
     <component :is="Component"> </component>
-    <Toast />
   </router-view>
 </template>
 
@@ -10,12 +9,11 @@ import { Client, provideClient, cacheExchange, fetchExchange } from '@urql/vue';
 import { authExchange } from '@urql/exchange-auth';
 import jwt from './libs/jwt';
 import { authStore } from './stores/auth';
-import Toast from 'primevue/toast';
 
 export default {
   name: 'App',
 
-  components: { Toast },
+  components: {},
 
   setup() {
     const auth = authStore();
@@ -45,6 +43,7 @@ export default {
         }),
         fetchExchange,
       ],
+      requestPolicy: 'cache-and-network',
     });
 
     provideClient(client);

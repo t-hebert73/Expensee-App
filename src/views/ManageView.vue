@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts">
-import { authStore } from '@/stores/auth';
 import ExpensesTable from '@/components/ExpensesTable.vue';
 import { defineComponent } from 'vue';
 
@@ -19,9 +18,7 @@ export default defineComponent({
   components: { ExpensesTable },
 
   setup() {
-    const auth = authStore();
-
-    return { user: auth.user };
+    return {};
   },
 });
 </script>
