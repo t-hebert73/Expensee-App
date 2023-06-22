@@ -210,7 +210,7 @@ export default defineComponent({
         severity: 'success',
         summary: 'Success',
         detail: successMsg,
-        life: 3000,
+        life: 5000,
       });
 
       router.push({

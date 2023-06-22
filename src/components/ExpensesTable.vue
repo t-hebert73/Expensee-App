@@ -19,7 +19,7 @@
         <Column field="provider" header="Provider"></Column>
         <Column field="frequency" header="Frequency"></Column>
         <Column field="action" header="Action" style="width: 350px">
-          <template #body="{ data }">
+          <template #body="{ data, index }">
             <Button
               @click="navigateToEditExpense(data)"
               label="Edit"
@@ -36,7 +36,7 @@
               class="mr-3"
             ></Button>
             <Button
-              @click="deleteExpense(data)"
+              @click="deleteExpense(data, index)"
               severity="danger"
               rounded
               icon="pi pi-trash"
@@ -52,13 +52,19 @@
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue';
-import { useQuery } from '@urql/vue';
-import { GetExpensesDocument, Expense } from '@/graphql/generated';
+import { useQuery, useMutation } from '@urql/vue';
+import {
+  GetExpensesDocument,
+  Expense,
+  DeleteExpenseDocument,
+  DeleteExpenseMutationVariables,
+} from '@/graphql/generated';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 
 export default defineComponent({
   name: 'ExpensesTable',
@@ -68,6 +74,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const expenses = ref<Expense[]>([]);
+    const toast = useToast();
 
     const fetchExpenses = async () => {
       const query = useQuery({
@@ -102,8 +109,30 @@ export default defineComponent({
     const navigateToEditPayments = (expense: Expense) => {
       console.log(expense.id);
     };
-    const deleteExpense = (expense: Expense) => {
-      console.log(expense.id);
+
+    const deleteExpenseMutation = useMutation(DeleteExpenseDocument);
+
+    const deleteExpense = async (expense: Expense, index: number) => {
+      const mutationVars: DeleteExpenseMutationVariables = {
+        id: parseInt(expense.id),
+      };
+
+      const result = await deleteExpenseMutation.executeMutation(mutationVars);
+
+      const toastSeverity = result.error ? 'error' : 'success';
+      const toastSummary = result.error ? 'Error' : 'Success';
+      const toastDetail = result.error
+        ? result.error.graphQLErrors[0].message
+        : 'Successfully deleted expense';
+
+      toast.add({
+        severity: toastSeverity,
+        summary: toastSummary,
+        detail: toastDetail,
+        life: 5000,
+      });
+
+      expenses.value.splice(index, 1);
     };
 
     return {

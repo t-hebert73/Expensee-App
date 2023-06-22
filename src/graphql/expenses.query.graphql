@@ -31,3 +31,9 @@ mutation updateExpense($id: Int!, $expenseInput: ExpenseInput!) {
     id
   }
 }
+
+mutation deleteExpense($id: Int!) {
+  deleteExpense(id: $id){
+    id
+  }
+}
