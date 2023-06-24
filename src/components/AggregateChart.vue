@@ -1,5 +1,18 @@
 <template>
   <Card>
+    <template #title>
+      <div class="justify-content-between">
+        <Calendar
+          v-model="selectedDates"
+          selectionMode="range"
+          dateFormat="mm/yy"
+          view="month"
+          :manualInput="false"
+          :hideOnRangeSelection="true"
+          placeholder="Date Range"
+        />
+      </div>
+    </template>
     <template #content>
       <Chart
         type="line"
@@ -14,7 +27,7 @@
 <script lang="ts">
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
-import { Line } from 'vue-chartjs';
+import Calendar from 'primevue/calendar';
 import {
   Chart as ChartJS,
   Title,
@@ -25,8 +38,13 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
-import { defineComponent, computed, ref } from 'vue';
-import { Expense, GetExpensesWithPaymentsDocument } from '@/graphql/generated';
+import { defineComponent, computed, ref, watch } from 'vue';
+import {
+  Expense,
+  GetExpensesWithPaymentsDocument,
+  Payment,
+  GetExpensesWithPaymentsQueryVariables,
+} from '@/graphql/generated';
 import { useQuery } from '@urql/vue';
 import moment from 'moment';
 
@@ -50,10 +68,11 @@ type IDataSet = {
 
 export default defineComponent({
   name: 'AggregateChart',
-  components: { Card, Chart },
+  components: { Card, Chart, Calendar },
 
   setup() {
     const expenses = ref<Expense[]>([]);
+    const selectedDates: any = ref(null);
 
     const expenseColours = [
       {
@@ -100,24 +119,57 @@ export default defineComponent({
 
     const mychart = ref(null);
 
+    const queryVariables = ref<GetExpensesWithPaymentsQueryVariables>();
+
     const query = useQuery({
       query: GetExpensesWithPaymentsDocument,
+      variables: queryVariables,
     });
-    const fetchExpenses = async () => {
+
+    /**
+     * todo:
+     *    - build xAxis from api data.
+     *    - inputswitch to allow for grouping between month & year (default) vs just month
+     */
+
+    const fetchExpenses = async (
+      startDate: Date | null = null,
+      endDate: Date | null = null
+    ) => {
+      datasets.value = [];
+
+      const queryStartDate = startDate
+        ? moment(startDate).format('YYYY-MM-DD')
+        : null;
+
+      const queryStartEnd = endDate
+        ? moment(endDate).format('YYYY-MM-DD')
+        : null;
+
+      if (queryStartDate && queryStartEnd) {
+        queryVariables.value = {
+          paidAtDateRange: {
+            start: queryStartDate,
+            end: queryStartEnd,
+          },
+        };
+      }
+
       const result = await query.executeQuery();
 
       expenses.value = result.data.value?.expenses
         ? result.data.value?.expenses
         : [];
 
-      const totalData: number[] = [];
-      const totalDataset = {
+      const totalDataset: IDataSet = {
         label: 'Total',
-        data: totalData,
+        data: [],
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         borderColor: 'rgb(0, 0, 0)',
         borderWidth: 2,
       };
+
+      setDefaultDataValuesForDataSet(totalDataset.data);
 
       expenses.value.forEach((expense, i) => {
         const label: string = expense.name;
@@ -129,18 +181,11 @@ export default defineComponent({
           ? expenseColours[i].backgroundColor
           : 'rgb(201, 203, 207)';
 
+        setDefaultDataValuesForDataSet(data);
+
         expense.payments?.forEach((payment) => {
-          const paidAtDate = moment(payment.paidAt).format('MMMM');
-
-          xAxisDates.forEach(() => {
-            data.push(0);
-            totalDataset.data.push(0);
-          });
-
-          if (xAxisDates.includes(paidAtDate)) {
-            data[xAxisDates.indexOf(paidAtDate)] = payment.amount;
-            totalDataset.data[xAxisDates.indexOf(paidAtDate)] += payment.amount;
-          }
+          setDataValueForDateAtIndex(payment, data);
+          setDataValueForDateAtIndex(payment, totalDataset.data);
         });
 
         if (expense.payments?.length) {
@@ -157,7 +202,18 @@ export default defineComponent({
       datasets.value.push(totalDataset);
     };
 
-    fetchExpenses();
+    const setDefaultDataValuesForDataSet = (data: number[]) => {
+      xAxisDates.forEach(() => {
+        data.push(0);
+      });
+    };
+
+    const setDataValueForDateAtIndex = (payment: Payment, data: number[]) => {
+      const paidAtDate = moment(payment.paidAt).format('MMMM');
+      if (!xAxisDates.includes(paidAtDate)) return;
+
+      data[xAxisDates.indexOf(paidAtDate)] += payment.amount;
+    };
 
     const chartStyles = computed(() => {
       return {
@@ -173,11 +229,24 @@ export default defineComponent({
         datasets: datasets.value,
       };
     });
+
+    fetchExpenses();
+
+    watch(
+      () => selectedDates.value,
+      (selectedDates) => {
+        if (!selectedDates[0] || !selectedDates[1]) return;
+
+        fetchExpenses(selectedDates[0], selectedDates[1]);
+      }
+    );
+
     return {
       datasets,
       mychart,
       chartData,
       chartStyles,
+      selectedDates,
     };
   },
 });

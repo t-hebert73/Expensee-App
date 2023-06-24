@@ -37,7 +37,7 @@ query getExpenseWithPayments($id: Int!) {
   }
 }
 
-query getExpensesWithPayments {
+query getExpensesWithPayments($paidAtDateRange: DateRangeInput) {
   expenses {
     id
     name
@@ -45,7 +45,7 @@ query getExpensesWithPayments {
     category
     provider
     createdAt
-    payments {
+    payments(paidAtDateRange: $paidAtDateRange) {
       id
       amount
       paidAt
