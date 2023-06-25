@@ -43,7 +43,7 @@ export default {
         }),
         fetchExchange,
       ],
-      requestPolicy: 'cache-and-network',
+      requestPolicy: 'network-only',
     });
 
     provideClient(client);

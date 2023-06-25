@@ -1,8 +1,13 @@
 <template>
-  <div class="page-signup">
+  <div class="page-dashboard">
     <section class="grid grid-nogutter">
       <div class="col-12">
         <AggregateChart />
+      </div>
+
+      <div class="col-12 mt-3">
+        Show Averages.. avg total per month. avg invidivual expense per month.
+        average category per month
       </div>
     </section>
   </div>

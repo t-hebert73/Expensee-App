@@ -1,7 +1,7 @@
 <template>
   <Card>
-    <template #title>
-      <div class="justify-content-between">
+    <template #title v-if="chartData.datasets.length">
+      <div class="flex justify-content-between">
         <Calendar
           v-model="selectedDates"
           selectionMode="range"
@@ -11,15 +11,27 @@
           :hideOnRangeSelection="true"
           placeholder="Date Range"
         />
+        <label class="group-data-switch">
+          <span>Group data by month</span>
+          <InputSwitch v-model="groupWithIgnoringYear" />
+        </label>
       </div>
     </template>
     <template #content>
       <Chart
+        v-if="chartData.datasets.length"
         type="line"
         :data="chartData"
         :style="chartStyles"
         :options="{ responsive: true, maintainAspectRatio: false }"
       />
+      <div v-else>
+        A graph awaits you when you have expenses with payments! Be sure to
+        <RouterLink class="p-button p-button-text p-0" :to="{ name: 'manage' }"
+          >add some</RouterLink
+        >
+        and keep the payments up to date!
+      </div>
     </template>
   </Card>
 </template>
@@ -28,6 +40,7 @@
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Calendar from 'primevue/calendar';
+import InputSwitch from 'primevue/inputswitch';
 import {
   Chart as ChartJS,
   Title,
@@ -46,7 +59,8 @@ import {
   GetExpensesWithPaymentsQueryVariables,
 } from '@/graphql/generated';
 import { useQuery } from '@urql/vue';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
+import { RouterLink } from 'vue-router';
 
 ChartJS.register(
   Title,
@@ -68,7 +82,7 @@ type IDataSet = {
 
 export default defineComponent({
   name: 'AggregateChart',
-  components: { Card, Chart, Calendar },
+  components: { Card, Chart, Calendar, InputSwitch, RouterLink },
 
   setup() {
     const expenses = ref<Expense[]>([]);
@@ -100,20 +114,11 @@ export default defineComponent({
         borderColor: 'rgb(153, 102, 255)',
       },
     ];
-    const xAxisDates = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
+    const xAxisDates = ref<string[]>([]);
+    const groupWithIgnoringYear = ref(false);
+    const dateFormat = computed(() => {
+      return groupWithIgnoringYear.value ? 'MMMM' : 'MMMM YYYY';
+    });
 
     const datasets = ref<IDataSet[]>([]);
 
@@ -126,18 +131,10 @@ export default defineComponent({
       variables: queryVariables,
     });
 
-    /**
-     * todo:
-     *    - build xAxis from api data.
-     *    - inputswitch to allow for grouping between month & year (default) vs just month
-     */
-
     const fetchExpenses = async (
       startDate: Date | null = null,
       endDate: Date | null = null
     ) => {
-      datasets.value = [];
-
       const queryStartDate = startDate
         ? moment(startDate).format('YYYY-MM-DD')
         : null;
@@ -160,6 +157,49 @@ export default defineComponent({
       expenses.value = result.data.value?.expenses
         ? result.data.value?.expenses
         : [];
+
+      parseExpenseDataForGraph();
+    };
+
+    const parseExpenseDataForGraph = () => {
+      if (expenses.value.length === 0) return;
+
+      datasets.value = [];
+      xAxisDates.value = [];
+      let earliestDate: Moment = moment();
+      let latestDate: Moment = moment();
+
+      expenses.value.forEach((expense) => {
+        expense.payments?.forEach((payment) => {
+          const paymentPaidAt = moment(payment.paidAt);
+
+          if (paymentPaidAt < earliestDate) earliestDate = paymentPaidAt;
+          if (paymentPaidAt > latestDate) latestDate = paymentPaidAt;
+        });
+      });
+
+      const incrementingDate: Moment = earliestDate.startOf('month');
+
+      while (incrementingDate < latestDate.endOf('month')) {
+        if (groupWithIgnoringYear.value) {
+          if (
+            !xAxisDates.value.includes(
+              incrementingDate.format(dateFormat.value)
+            )
+          )
+            xAxisDates.value.push(incrementingDate.format(dateFormat.value));
+        } else {
+          xAxisDates.value.push(incrementingDate.format(dateFormat.value));
+        }
+
+        incrementingDate.add(1, 'month');
+      }
+
+      if (groupWithIgnoringYear.value) {
+        xAxisDates.value.sort((a, b) => {
+          return moment(`${a} 01 2023`) > moment(`${b} 01 2023`) ? 1 : -1;
+        });
+      }
 
       const totalDataset: IDataSet = {
         label: 'Total',
@@ -203,16 +243,16 @@ export default defineComponent({
     };
 
     const setDefaultDataValuesForDataSet = (data: number[]) => {
-      xAxisDates.forEach(() => {
+      xAxisDates.value.forEach(() => {
         data.push(0);
       });
     };
 
     const setDataValueForDateAtIndex = (payment: Payment, data: number[]) => {
-      const paidAtDate = moment(payment.paidAt).format('MMMM');
-      if (!xAxisDates.includes(paidAtDate)) return;
+      const paidAtDate = moment(payment.paidAt).format(dateFormat.value);
+      if (!xAxisDates.value.includes(paidAtDate)) return;
 
-      data[xAxisDates.indexOf(paidAtDate)] += payment.amount;
+      data[xAxisDates.value.indexOf(paidAtDate)] += payment.amount;
     };
 
     const chartStyles = computed(() => {
@@ -225,7 +265,7 @@ export default defineComponent({
 
     const chartData = computed(() => {
       return {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+        labels: xAxisDates.value,
         datasets: datasets.value,
       };
     });
@@ -237,7 +277,15 @@ export default defineComponent({
       (selectedDates) => {
         if (!selectedDates[0] || !selectedDates[1]) return;
 
+        console.log('selected');
         fetchExpenses(selectedDates[0], selectedDates[1]);
+      }
+    );
+
+    watch(
+      () => groupWithIgnoringYear.value,
+      () => {
+        parseExpenseDataForGraph();
       }
     );
 
@@ -247,7 +295,19 @@ export default defineComponent({
       chartData,
       chartStyles,
       selectedDates,
+      groupWithIgnoringYear,
     };
   },
 });
 </script>
+
+<style lang="sass" scoped>
+.group-data-switch
+  font-size: 1rem
+
+  span
+    display: inline-block
+    vertical-align: top
+    margin-right: 15px
+    font-weight: 600
+</style>
