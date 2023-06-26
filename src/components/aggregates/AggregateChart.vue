@@ -1,22 +1,5 @@
 <template>
   <Card>
-    <template #title>
-      <div class="flex justify-content-between">
-        <Calendar
-          v-model="selectedDates"
-          selectionMode="range"
-          dateFormat="mm/yy"
-          view="month"
-          :manualInput="false"
-          :hideOnRangeSelection="true"
-          placeholder="Date Range"
-        />
-        <label class="group-data-switch">
-          <span>Group data by month</span>
-          <InputSwitch v-model="shouldGroupDataByMonth" />
-        </label>
-      </div>
-    </template>
     <template #content>
       <Chart
         v-if="chartData.datasets.length"
@@ -33,8 +16,6 @@
 <script lang="ts">
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
-import Calendar from 'primevue/calendar';
-import InputSwitch from 'primevue/inputswitch';
 import {
   Chart as ChartJS,
   Title,
@@ -45,14 +26,8 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
-import { defineComponent, computed, ref, watch } from 'vue';
-import {
-  Expense,
-  GetExpensesWithPaymentsDocument,
-  Payment,
-  GetExpensesWithPaymentsQueryVariables,
-} from '@/graphql/generated';
-import { useQuery } from '@urql/vue';
+import { defineComponent, computed, ref, watch, PropType } from 'vue';
+import { Expense, Payment } from '@/graphql/generated';
 import moment, { Moment } from 'moment';
 import { expenseGraphColours } from './definitions';
 
@@ -66,64 +41,31 @@ type IDataSet = {
   borderWidth: number;
 };
 
-type IFetchExpensesParams = {
-  dateRange: {
-    start: Date | null;
-    end: Date | null;
-  };
-};
-
 export default defineComponent({
   name: 'AggregateChart',
-  components: { Card, Chart, Calendar, InputSwitch },
+  components: { Card, Chart },
 
-  setup() {
-    const expenses = ref<Expense[]>([]);
+  props: {
+    expenses: {
+      type: Array as PropType<Expense[]>,
+      required: true,
+    },
+    shouldGroupDataByMonth: {
+      type: Boolean,
+      required: true,
+    },
+  },
+
+  setup(props) {
     const xAxisDates = ref<string[]>([]);
-    const shouldGroupDataByMonth = ref(false);
     const dateFormat = computed(() => {
-      return shouldGroupDataByMonth.value ? 'MMMM' : 'MMMM YYYY';
+      return props.shouldGroupDataByMonth ? 'MMMM' : 'MMMM YYYY';
     });
 
     const datasets = ref<IDataSet[]>([]);
 
-    const queryVariables = ref<GetExpensesWithPaymentsQueryVariables>();
-    const query = useQuery({
-      query: GetExpensesWithPaymentsDocument,
-      variables: queryVariables,
-    });
-
-    const fetchExpenses = async (fetchParams?: IFetchExpensesParams) => {
-      setupQueryVariables(fetchParams);
-      const result = await query.executeQuery();
-
-      expenses.value = result.data.value?.expenses ?? [];
-
-      parseExpenseDataForGraph();
-    };
-
-    const setupQueryVariables = (fetchParams?: IFetchExpensesParams) => {
-      const apiExpectedDateFormat = 'YYYY-MM-DD';
-      const queryStartDate = fetchParams?.dateRange.start
-        ? moment(fetchParams.dateRange.start).format(apiExpectedDateFormat)
-        : null;
-
-      const queryEndDate = fetchParams?.dateRange.end
-        ? moment(fetchParams.dateRange.end).format(apiExpectedDateFormat)
-        : null;
-
-      if (!queryStartDate || !queryEndDate) return;
-
-      queryVariables.value = {
-        paidAtDateRange: {
-          start: queryStartDate,
-          end: queryEndDate,
-        },
-      };
-    };
-
-    const parseExpenseDataForGraph = () => {
-      if (expenses.value.length === 0) return;
+    const parseExpenseData = () => {
+      if (props.expenses?.length === 0) return;
 
       resetGraphData();
       buildXAxis();
@@ -138,7 +80,7 @@ export default defineComponent({
 
       setDefaultDataValuesForDataSet(totalDataset.data);
 
-      expenses.value.forEach((expense, i) => {
+      props.expenses.forEach((expense, i) => {
         parseDataSet(expense, totalDataset, i);
       });
 
@@ -152,7 +94,7 @@ export default defineComponent({
       let earliestPaidAtDate: Moment = moment();
       let latestPaidAtDate: Moment = moment();
 
-      expenses.value.forEach((expense) => {
+      props.expenses.forEach((expense) => {
         expense.payments?.forEach((payment) => {
           const paymentPaidAt = moment(payment.paidAt);
 
@@ -169,7 +111,7 @@ export default defineComponent({
         dateIncrement.add(1, 'month');
       }
 
-      if (!shouldGroupDataByMonth.value) return;
+      if (!props.shouldGroupDataByMonth) return;
 
       xAxisDates.value.sort((a, b) => {
         return moment(`${a} 01 2023`) > moment(`${b} 01 2023`) ? 1 : -1;
@@ -177,7 +119,7 @@ export default defineComponent({
     };
 
     const shouldAddToXAxisDates = (dateIncrement: moment.Moment) => {
-      if (!shouldGroupDataByMonth.value) return true;
+      if (!props.shouldGroupDataByMonth) return true;
 
       if (!xAxisDates.value.includes(dateIncrement.format(dateFormat.value))) return true;
 
@@ -245,24 +187,17 @@ export default defineComponent({
       };
     });
 
-    fetchExpenses();
-
-    const selectedDates = ref<Date[] | null>(null);
     watch(
-      () => selectedDates.value,
-      (selectedDates) => {
-        if (!selectedDates) return;
-
-        fetchExpenses({
-          dateRange: { start: selectedDates[0], end: selectedDates[1] },
-        });
+      () => props.expenses,
+      () => {
+        parseExpenseData();
       }
     );
 
     watch(
-      () => shouldGroupDataByMonth.value,
+      () => props.shouldGroupDataByMonth,
       () => {
-        parseExpenseDataForGraph();
+        parseExpenseData();
       }
     );
 
@@ -270,24 +205,7 @@ export default defineComponent({
       datasets,
       chartData,
       chartStyles,
-      selectedDates,
-      shouldGroupDataByMonth,
     };
   },
 });
 </script>
-
-<style lang="sass" scoped>
-.group-data-switch
-  font-size: 1rem
-
-  span
-    display: inline-block
-    vertical-align: top
-    margin-right: 15px
-    font-weight: 600
-
-.title
-  font-size: 1rem
-  text-align: center
-</style>

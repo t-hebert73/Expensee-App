@@ -32,9 +32,7 @@ export default {
               });
             },
             didAuthError(error) {
-              return error.graphQLErrors.some(
-                (e) => e.extensions?.code === 'FORBIDDEN'
-              );
+              return error.graphQLErrors.some((e) => e.extensions?.code === 'FORBIDDEN');
             },
             async refreshAuth() {
               auth.forceLogout();
@@ -43,7 +41,7 @@ export default {
         }),
         fetchExchange,
       ],
-      requestPolicy: 'network-only',
+      requestPolicy: 'cache-and-network',
     });
 
     provideClient(client);

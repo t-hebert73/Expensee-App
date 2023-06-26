@@ -35,4 +35,31 @@ const expenseGraphColours = {
   ],
 };
 
-export { expenseGraphColours };
+const frequenciesMap = [
+  {
+    name: 'Weekly',
+    modifier: 52,
+  },
+  {
+    name: 'Bi-weekly',
+    modifier: 26,
+  },
+  {
+    name: 'Monthly',
+    modifier: 12,
+  },
+  {
+    name: 'Bi-monthly',
+    modifier: 24,
+  },
+  {
+    name: 'Tri-monthly',
+    modifier: 4,
+  },
+  {
+    name: 'Yearly',
+    modifier: 1,
+  },
+];
+
+export { expenseGraphColours, frequenciesMap };

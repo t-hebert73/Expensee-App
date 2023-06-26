@@ -2,30 +2,16 @@
   <Card>
     <template #title>Editing {{ activeExpense.name }} Expense</template>
     <template #content>
-      <Message
-        v-if="validationErrorMsg"
-        severity="error"
-        @close="validationErrorMsg = ''"
-      >
+      <Message v-if="validationErrorMsg" severity="error" @close="validationErrorMsg = ''">
         {{ validationErrorMsg }}
       </Message>
       <div class="flex flex-column gap-2">
         <label for="name">Name</label>
-        <InputText
-          id="name"
-          type="text"
-          v-model="activeExpense.name"
-          placeholder="ex. Hydro"
-        ></InputText>
+        <InputText id="name" type="text" v-model="activeExpense.name" placeholder="ex. Hydro"></InputText>
       </div>
       <div class="flex flex-column gap-2 mt-3">
         <label for="provider">Provider</label>
-        <InputText
-          id="provider"
-          type="text"
-          v-model="activeExpense.provider"
-          placeholder="ex. Enbridge"
-        ></InputText>
+        <InputText id="provider" type="text" v-model="activeExpense.provider" placeholder="ex. Enbridge"></InputText>
       </div>
       <div class="flex flex-column gap-2 mt-3">
         <label for="name">Category</label>
@@ -53,19 +39,13 @@
               :name="availableFrequency.name"
               :value="availableFrequency.value"
             />
-            <label :for="availableFrequency.value" class="ml-2">{{
-              availableFrequency.name
-            }}</label>
+            <label :for="availableFrequency.value" class="ml-2">{{ availableFrequency.name }}</label>
           </div>
         </div>
       </div>
 
       <div class="flex gap-2 mt-5">
-        <Button
-          @click="saveExpense"
-          rounded
-          :label="activeExpense.id === '-1' ? 'Create' : 'Save'"
-        ></Button>
+        <Button @click="saveExpense" rounded :label="activeExpense.id === '-1' ? 'Create' : 'Save'"></Button>
       </div>
     </template>
   </Card>
@@ -130,18 +110,17 @@ export default defineComponent({
     );
 
     const availableCategories = [
-      { name: 'Utility', value: 'Utility' },
-      { name: 'Mortgage', value: 'Mortgage' },
-      { name: 'Tax', value: 'Tax' },
+      { name: 'Utility', value: 'Utilities' },
+      { name: 'Mortgage', value: 'Mortgages' },
+      { name: 'Tax', value: 'Taxes' },
     ];
 
     const availableFrequencies = [
       { name: 'Weekly', value: 'Weekly' },
-      { name: 'Bi-Weekly', value: 'Bi-weekly' },
-      { name: 'Tri-Weekly', value: 'Tri-weekly' },
+      { name: 'Bi-weekly', value: 'Bi-weekly' },
       { name: 'Monthly', value: 'Monthly' },
-      { name: 'Bi-Monthly', value: 'Bi-monthly' },
-      { name: 'Tri-Monthly', value: 'Tri-monthly' },
+      { name: 'Bi-monthly', value: 'Bi-monthly' },
+      { name: 'Tri-monthly', value: 'Tri-monthly' },
       { name: 'Yearly', value: 'Yearly' },
     ];
 
@@ -162,15 +141,12 @@ export default defineComponent({
           ? `Created ${activeExpense.value.name} Expense`
           : `Updated ${activeExpense.value.name} Expense`;
 
-      let mutationVars:
-        | CreateExpenseMutationVariables
-        | UpdateExpenseMutationVariables = {
+      let mutationVars: CreateExpenseMutationVariables | UpdateExpenseMutationVariables = {
         expenseInput,
       };
 
-      let mutation:
-        | UseMutationResponse<CreateExpenseMutation>
-        | UseMutationResponse<UpdateExpenseMutation> = createExpenseMutation;
+      let mutation: UseMutationResponse<CreateExpenseMutation> | UseMutationResponse<UpdateExpenseMutation> =
+        createExpenseMutation;
 
       if (activeExpense.value.id !== '-1') {
         mutationVars = {
@@ -185,21 +161,15 @@ export default defineComponent({
     };
 
     const submitExpense = async (
-      mutation:
-        | UseMutationResponse<CreateExpenseMutation>
-        | UseMutationResponse<UpdateExpenseMutation>,
-      mutationVars:
-        | CreateExpenseMutationVariables
-        | UpdateExpenseMutationVariables,
+      mutation: UseMutationResponse<CreateExpenseMutation> | UseMutationResponse<UpdateExpenseMutation>,
+      mutationVars: CreateExpenseMutationVariables | UpdateExpenseMutationVariables,
       successMsg: string
     ) => {
       const result = await mutation.executeMutation(mutationVars);
 
       const toastSeverity = result.error ? 'error' : 'success';
       const toastSummary = result.error ? 'Error' : 'Success';
-      const toastDetail = result.error
-        ? result.error.graphQLErrors[0].message
-        : successMsg;
+      const toastDetail = result.error ? result.error.graphQLErrors[0].message : successMsg;
 
       toast.add({
         severity: toastSeverity,
