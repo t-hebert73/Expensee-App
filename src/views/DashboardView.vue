@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { authStore } from '@/stores/auth';
-import AggregateChart from '../components/AggregateChart.vue';
+import AggregateChart from '../components/aggregate-chart/AggregateChart.vue';
 
 export default {
   name: 'DashboardView',
