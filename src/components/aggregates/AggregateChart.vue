@@ -1,5 +1,14 @@
 <template>
   <Card>
+    <template #title>
+      <div class="flex justify-content-between">
+        <div>&nbsp;</div>
+        <label class="group-data-switch">
+          <span>Group data by month</span>
+          <InputSwitch v-model="shouldGroupDataByMonth" />
+        </label>
+      </div>
+    </template>
     <template #content>
       <Chart
         v-if="chartData.datasets.length"
@@ -16,6 +25,7 @@
 <script lang="ts">
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
+import InputSwitch from 'primevue/inputswitch';
 import {
   Chart as ChartJS,
   Title,
@@ -43,23 +53,24 @@ type IDataSet = {
 
 export default defineComponent({
   name: 'AggregateChart',
-  components: { Card, Chart },
+  components: { Card, Chart, InputSwitch },
 
   props: {
     expenses: {
       type: Array as PropType<Expense[]>,
       required: true,
     },
-    shouldGroupDataByMonth: {
-      type: Boolean,
-      required: true,
+    selectedDates: {
+      type: Array as PropType<Date[] | null>,
     },
   },
 
   setup(props) {
     const xAxisDates = ref<string[]>([]);
+    const shouldGroupDataByMonth = ref(false);
+
     const dateFormat = computed(() => {
-      return props.shouldGroupDataByMonth ? 'MMMM' : 'MMMM YYYY';
+      return shouldGroupDataByMonth.value ? 'MMMM' : 'MMMM YYYY';
     });
 
     const datasets = ref<IDataSet[]>([]);
@@ -111,7 +122,7 @@ export default defineComponent({
         dateIncrement.add(1, 'month');
       }
 
-      if (!props.shouldGroupDataByMonth) return;
+      if (!shouldGroupDataByMonth.value) return;
 
       xAxisDates.value.sort((a, b) => {
         return moment(`${a} 01 2023`) > moment(`${b} 01 2023`) ? 1 : -1;
@@ -119,7 +130,7 @@ export default defineComponent({
     };
 
     const shouldAddToXAxisDates = (dateIncrement: moment.Moment) => {
-      if (!props.shouldGroupDataByMonth) return true;
+      if (!shouldGroupDataByMonth.value) return true;
 
       if (!xAxisDates.value.includes(dateIncrement.format(dateFormat.value))) return true;
 
@@ -195,13 +206,14 @@ export default defineComponent({
     );
 
     watch(
-      () => props.shouldGroupDataByMonth,
+      () => shouldGroupDataByMonth.value,
       () => {
         parseExpenseData();
       }
     );
 
     return {
+      shouldGroupDataByMonth,
       datasets,
       chartData,
       chartStyles,
@@ -209,3 +221,16 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="sass" scoped>
+.group-data-switch
+  font-size: 1rem
+  align-self: center
+  display: flex
+
+  span
+    display: inline-block
+    vertical-align: super
+    margin-right: 15px
+    font-weight: 600
+</style>

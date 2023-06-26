@@ -30,6 +30,8 @@
           {{ CADFormatter.format(dataset.value) }}
         </div>
       </div>
+
+      <p class="text-center mt-5 mb-5" v-if="!averagesDataSet.length">No data available for selected time period.</p>
     </template>
   </Card>
 </template>
@@ -87,6 +89,8 @@ export default defineComponent({
           allPaymentValues.push(paymentAmount);
         });
       });
+
+      if (!allPaymentValues.length) return;
 
       const totalAvgValue = allPaymentValues.reduce((accumulator, val) => accumulator + val) / allPaymentValues.length;
 
@@ -149,6 +153,8 @@ export default defineComponent({
 
     const parseByExpense = () => {
       props.expenses.forEach((expense) => {
+        if (!expense.payments?.length) return;
+
         const paymentValues: number[] = [];
 
         expense.payments?.forEach((payment) => {

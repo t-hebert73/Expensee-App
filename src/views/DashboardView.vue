@@ -14,16 +14,13 @@
                 :hideOnRangeSelection="true"
                 placeholder="Date Range"
               />
-              <label class="group-data-switch">
-                <span>Group data by month</span>
-                <InputSwitch v-model="shouldGroupDataByMonth" />
-              </label>
+              <div class="text-2xl text-900">{{ title }}</div>
             </div>
           </template>
         </Card>
       </div>
       <div class="col-12">
-        <AggregateChart :expenses="expenses" :shouldGroupDataByMonth="shouldGroupDataByMonth" />
+        <AggregateChart :expenses="expenses" :selectedDates="selectedDates" />
       </div>
 
       <div class="col-12 mt-3 mb-5">
@@ -36,10 +33,9 @@
 <script lang="ts">
 import Card from 'primevue/card';
 import Calendar from 'primevue/calendar';
-import InputSwitch from 'primevue/inputswitch';
 import AggregateChart from '../components/aggregates/AggregateChart.vue';
 import AggregateAverages from '../components/aggregates/AggregateAverages.vue';
-import { defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 import { useQuery } from '@urql/vue';
 import moment from 'moment';
 import { Expense, GetExpensesWithPaymentsDocument, GetExpensesWithPaymentsQueryVariables } from '@/graphql/generated';
@@ -54,12 +50,10 @@ type IFetchExpensesParams = {
 export default defineComponent({
   name: 'DashboardView',
 
-  components: { Card, Calendar, InputSwitch, AggregateChart, AggregateAverages },
+  components: { Card, Calendar, AggregateChart, AggregateAverages },
 
   setup() {
     const expenses = ref<Expense[]>([]);
-
-    const shouldGroupDataByMonth = ref(false);
 
     const queryVariables = ref<GetExpensesWithPaymentsQueryVariables>();
     const query = useQuery({
@@ -108,20 +102,14 @@ export default defineComponent({
 
     fetchExpenses();
 
-    return { expenses, selectedDates, shouldGroupDataByMonth };
+    const title = computed(() => {
+      if (!selectedDates.value || !selectedDates.value[0] || !selectedDates.value[1]) return 'All Data';
+      return `${moment(selectedDates.value[0]).format('MMM D0 YYYY')} to ${moment(selectedDates.value[1]).format(
+        'MMM D0 YYYY'
+      )}`;
+    });
+
+    return { expenses, selectedDates, title };
   },
 });
 </script>
-
-<style lang="sass" scoped>
-.group-data-switch
-  font-size: 1rem
-  align-self: center
-  display: flex
-
-  span
-    display: inline-block
-    vertical-align: super
-    margin-right: 15px
-    font-weight: 600
-</style>
