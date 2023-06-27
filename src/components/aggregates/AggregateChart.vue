@@ -2,7 +2,7 @@
   <Card>
     <template #title>
       <div class="flex justify-content-between">
-        <div>&nbsp;</div>
+        <div class="text-2xl text-900">Monthly breakdown</div>
         <label class="group-data-switch">
           <span>Group data by month</span>
           <InputSwitch v-model="shouldGroupDataByMonth" />
@@ -102,17 +102,24 @@ export default defineComponent({
     };
 
     const buildXAxis = () => {
-      let earliestPaidAtDate: Moment = moment();
-      let latestPaidAtDate: Moment = moment();
+      let earliestPaidAtDate: moment.Moment | undefined = undefined;
+      let latestPaidAtDate: moment.Moment | undefined = undefined;
 
       props.expenses.forEach((expense) => {
         expense.payments?.forEach((payment) => {
           const paymentPaidAt = moment(payment.paidAt);
 
-          if (paymentPaidAt < earliestPaidAtDate) earliestPaidAtDate = paymentPaidAt;
-          if (paymentPaidAt > latestPaidAtDate) latestPaidAtDate = paymentPaidAt;
+          if (earliestPaidAtDate === undefined || paymentPaidAt < earliestPaidAtDate)
+            earliestPaidAtDate = paymentPaidAt;
+          if (latestPaidAtDate === undefined || paymentPaidAt > latestPaidAtDate) {
+            latestPaidAtDate = paymentPaidAt;
+          }
         });
       });
+
+      // not sure why i have to do this.. typescript.
+      if (!earliestPaidAtDate) earliestPaidAtDate = moment();
+      if (!latestPaidAtDate) latestPaidAtDate = moment();
 
       const dateIncrement: Moment = earliestPaidAtDate.startOf('month');
 
@@ -214,7 +221,6 @@ export default defineComponent({
 
     return {
       shouldGroupDataByMonth,
-      datasets,
       chartData,
       chartStyles,
     };

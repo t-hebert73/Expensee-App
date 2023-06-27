@@ -5,7 +5,7 @@ const expenseGraphColours = {
   },
   total: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderColor: 'rgb(0, 0, 0)',
+    borderColor: 'rgb(117, 117, 117)',
   },
   additional: [
     {
@@ -17,12 +17,12 @@ const expenseGraphColours = {
       borderColor: 'rgb(255, 159, 64)',
     },
     {
-      backgroundColor: 'rgba(255, 205, 86, 0.5)',
-      borderColor: 'rgb(255, 205, 86)',
-    },
-    {
       backgroundColor: 'rgba(75, 192, 192, 0.5)',
       borderColor: 'rgb(75, 192, 192)',
+    },
+    {
+      backgroundColor: 'rgba(255, 205, 86, 0.5)',
+      borderColor: 'rgb(255, 205, 86)',
     },
     {
       backgroundColor: 'rgba(54, 162, 235, 0.5)',
@@ -53,7 +53,7 @@ const frequenciesMap = [
     modifier: 24,
   },
   {
-    name: 'Tri-monthly',
+    name: 'Quarterly',
     modifier: 4,
   },
   {

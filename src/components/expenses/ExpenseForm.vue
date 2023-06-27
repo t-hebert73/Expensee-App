@@ -120,7 +120,7 @@ export default defineComponent({
       { name: 'Bi-weekly', value: 'Bi-weekly' },
       { name: 'Monthly', value: 'Monthly' },
       { name: 'Bi-monthly', value: 'Bi-monthly' },
-      { name: 'Tri-monthly', value: 'Tri-monthly' },
+      { name: 'Quarterly', value: 'Quarterly' },
       { name: 'Yearly', value: 'Yearly' },
     ];
 

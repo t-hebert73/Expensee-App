@@ -51,7 +51,7 @@ type IAvgDataSet = {
 };
 
 type IFrequencyPayment = {
-  frequency: string;
+  expense: Expense;
   payment: number;
 };
 
@@ -82,73 +82,7 @@ export default defineComponent({
       const funcToCall = shouldGroupDataByCategory.value ? parseByCategory : parseByExpense;
       funcToCall();
 
-      const allPaymentValues: number[] = [];
-      props.expenses.forEach((expense) => {
-        expense.payments?.forEach((payment) => {
-          const paymentAmount = normalizePaymentAmountWithFrequency(payment.amount, expense.frequency);
-          allPaymentValues.push(paymentAmount);
-        });
-      });
-
-      if (!allPaymentValues.length) return;
-
-      const totalAvgValue = allPaymentValues.reduce((accumulator, val) => accumulator + val) / allPaymentValues.length;
-
-      averagesDataSet.value.push({
-        name: 'Total',
-        value: totalAvgValue,
-      });
-
-      averagesDataSet.value.sort((a, b) => {
-        if (b.name === 'Total') return 2;
-        return a.value > b.value ? -1 : 1;
-      });
-    };
-
-    const parseByCategory = () => {
-      const categoriesDataSet: ICategoryDataSet[] = [];
-
-      props.expenses.forEach((expense) => {
-        const categoryDataSet = categoriesDataSet.find((dataset) => dataset.name === expense.category) ?? {
-          name: expense.category,
-          payments: [],
-        };
-
-        expense.payments?.forEach((payment) => {
-          const paymentAmount = normalizePaymentAmountWithFrequency(payment.amount, expense.frequency);
-          categoryDataSet.payments.push({
-            frequency: expense.frequency,
-            payment: paymentAmount,
-          });
-
-          const categoryDataSetIndex = categoriesDataSet.findIndex((dataset) => dataset.name === expense.category);
-          const indexToUse = categoryDataSetIndex === -1 ? categoriesDataSet.length : categoryDataSetIndex;
-          categoriesDataSet[indexToUse] = categoryDataSet;
-        });
-      });
-
-      categoriesDataSet.forEach((dataset: ICategoryDataSet) => {
-        let avgs = 0;
-
-        const frequencies = frequenciesMap.map((frequency) => frequency.name);
-
-        frequencies.forEach((frequency) => {
-          const payments = dataset.payments
-            .filter((frequencyPayment) => frequencyPayment.frequency === frequency)
-            .map((frequencyPayment) => frequencyPayment.payment);
-
-          const avgValue = payments.length
-            ? payments.reduce((accumulator, val) => accumulator + val) / payments.length
-            : 0;
-
-          avgs += avgValue;
-        });
-
-        averagesDataSet.value.push({
-          name: dataset.name,
-          value: avgs,
-        });
-      });
+      calculateTotal();
     };
 
     const parseByExpense = () => {
@@ -172,10 +106,71 @@ export default defineComponent({
       });
     };
 
+    const parseByCategory = () => {
+      const categoriesDataSet: ICategoryDataSet[] = [];
+
+      props.expenses.forEach((expense) => {
+        const categoryDataSet = categoriesDataSet.find((dataset) => dataset.name === expense.category) ?? {
+          name: expense.category,
+          payments: [],
+        };
+
+        expense.payments?.forEach((payment) => {
+          const paymentAmount = normalizePaymentAmountWithFrequency(payment.amount, expense.frequency);
+          categoryDataSet.payments.push({
+            expense: expense,
+            payment: paymentAmount,
+          });
+        });
+
+        const categoryDataSetIndex = categoriesDataSet.findIndex((dataset) => dataset.name === expense.category);
+        const indexToUse = categoryDataSetIndex === -1 ? categoriesDataSet.length : categoryDataSetIndex;
+
+        categoriesDataSet[indexToUse] = categoryDataSet;
+      });
+
+      categoriesDataSet.forEach((dataset: ICategoryDataSet) => {
+        let avgs = 0;
+
+        props.expenses.forEach((expense) => {
+          const payments = dataset.payments
+            .filter((frequencyPayment) => frequencyPayment.expense.name === expense.name)
+            .map((frequencyPayment) => frequencyPayment.payment);
+
+          const avgValue = payments.length
+            ? payments.reduce((accumulator, val) => accumulator + val) / payments.length
+            : 0;
+
+          avgs += avgValue;
+        });
+
+        averagesDataSet.value.push({
+          name: dataset.name,
+          value: avgs,
+        });
+      });
+    };
+
     const normalizePaymentAmountWithFrequency = (paymentAmount: number, frequency: string) => {
       const modifier = frequenciesMap.find((freq) => freq.name === frequency)?.modifier ?? 12;
 
       return (paymentAmount * modifier) / 12;
+    };
+
+    const calculateTotal = () => {
+      const totalAvgValue = averagesDataSet.value
+        .map((dataset) => dataset.value)
+        .reduce((accumulator, val) => accumulator + val);
+
+      averagesDataSet.value.push({
+        name: 'Total',
+        value: totalAvgValue,
+      });
+
+      averagesDataSet.value.sort((a, b) => {
+        if (b.name === 'Total') return 2;
+        return a.value > b.value ? -1 : 1;
+      });
     };
 
     watch(
