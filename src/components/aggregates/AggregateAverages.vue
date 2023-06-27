@@ -22,7 +22,7 @@
             </div>
             <div class="flex provider text-600 align-items-center">
               {{ dataset.expense?.provider }}
-              <Tag class="ml-3" v-if="dataset.expense" :value="dataset.expense.category"></Tag>
+              <CategoryTag v-if="dataset.expense" :expense="dataset.expense"></CategoryTag>
             </div>
           </div>
         </div>
@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import Card from 'primevue/card';
-import Tag from 'primevue/tag';
+import CategoryTag from '../CategoryTag.vue';
 import InputSwitch from 'primevue/inputswitch';
 import { Expense } from '@/graphql/generated';
 import { PropType, defineComponent, watch, ref } from 'vue';
@@ -62,7 +62,7 @@ type ICategoryDataSet = {
 export default defineComponent({
   name: 'AggregateAverages',
 
-  components: { Card, Tag, InputSwitch },
+  components: { Card, CategoryTag, InputSwitch },
 
   props: {
     expenses: {

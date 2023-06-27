@@ -1,12 +1,13 @@
 <template>
   <Card>
-    <template #title>Editing Payment for {{ expense.name }}</template>
+    <template #title>
+      <div class="flex text-600 align-items-center">
+        <div class="title">{{ expense.name }} - {{ expense.provider }}</div>
+        <CategoryTag :expense="expense"></CategoryTag>
+      </div>
+    </template>
     <template #content>
-      <Message
-        v-if="validationErrorMsg"
-        severity="error"
-        @close="validationErrorMsg = ''"
-      >
+      <Message v-if="validationErrorMsg" severity="error" @close="validationErrorMsg = ''">
         {{ validationErrorMsg }}
       </Message>
       <div class="flex flex-column gap-2">
@@ -33,17 +34,14 @@
       </div>
 
       <div class="flex gap-2 mt-5">
-        <Button
-          @click="savePayment"
-          rounded
-          :label="activePayment.id === '-1' ? 'Create' : 'Save'"
-        ></Button>
+        <Button @click="savePayment" rounded :label="activePayment.id === '-1' ? 'Create' : 'Save'"></Button>
       </div>
     </template>
   </Card>
 </template>
 
 <script lang="ts">
+import CategoryTag from '../CategoryTag.vue';
 import Card from 'primevue/card';
 import { PropType, defineComponent, ref } from 'vue';
 import InputNumber from 'primevue/inputnumber';
@@ -73,6 +71,7 @@ export default defineComponent({
     Button,
     Message,
     Calendar,
+    CategoryTag,
   },
 
   props: {
@@ -103,8 +102,7 @@ export default defineComponent({
     const savePayment = async () => {
       const { amount, paidAt } = activePayment.value;
 
-      const successMsg =
-        activePayment.value.id === '-1' ? `Created Payment` : `Updated Payment`;
+      const successMsg = activePayment.value.id === '-1' ? `Created Payment` : `Updated Payment`;
 
       const paymentInput: PaymentInput = {
         amount,
@@ -121,37 +119,24 @@ export default defineComponent({
         id: parseInt(activePayment.value.id),
       };
 
-      const mutation:
-        | UseMutationResponse<CreatePaymentMutation>
-        | UseMutationResponse<UpdatePaymentMutation> =
-        activePayment.value.id === '-1'
-          ? createPaymentMutation
-          : updatePaymentMutation;
+      const mutation: UseMutationResponse<CreatePaymentMutation> | UseMutationResponse<UpdatePaymentMutation> =
+        activePayment.value.id === '-1' ? createPaymentMutation : updatePaymentMutation;
 
-      const mutationVars =
-        activePayment.value.id === '-1'
-          ? createPaymentMutationVars
-          : updatePaymentMutationVars;
+      const mutationVars = activePayment.value.id === '-1' ? createPaymentMutationVars : updatePaymentMutationVars;
 
       await submitPayment(mutation, mutationVars, successMsg);
     };
 
     const submitPayment = async (
-      mutation:
-        | UseMutationResponse<CreatePaymentMutation>
-        | UseMutationResponse<UpdatePaymentMutation>,
-      mutationVars:
-        | CreatePaymentMutationVariables
-        | UpdatePaymentMutationVariables,
+      mutation: UseMutationResponse<CreatePaymentMutation> | UseMutationResponse<UpdatePaymentMutation>,
+      mutationVars: CreatePaymentMutationVariables | UpdatePaymentMutationVariables,
       successMsg: string
     ) => {
       const result = await mutation.executeMutation(mutationVars);
 
       const toastSeverity = result.error ? 'error' : 'success';
       const toastSummary = result.error ? 'Error' : 'Success';
-      const toastDetail = result.error
-        ? result.error.graphQLErrors[0].message
-        : successMsg;
+      const toastDetail = result.error ? result.error.graphQLErrors[0].message : successMsg;
 
       toast.add({
         severity: toastSeverity,
@@ -175,9 +160,7 @@ export default defineComponent({
     };
 
     const formatDate = (modelDateValue: any) => {
-      activePayment.value.paidAt = new Date(modelDateValue)
-        .toISOString()
-        .split('T')[0];
+      activePayment.value.paidAt = new Date(modelDateValue).toISOString().split('T')[0];
     };
 
     return {

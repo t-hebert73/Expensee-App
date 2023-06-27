@@ -1,6 +1,14 @@
 <template>
   <Card>
-    <template #title>Editing {{ activeExpense.name }} Expense</template>
+    <template #title>
+      <div class="flex text-600 align-items-center">
+        <div class="title">
+          <template v-if="activeExpense.name">{{ activeExpense.name }} - </template>
+          <template v-if="activeExpense.provider">{{ activeExpense.provider }}</template>
+        </div>
+        <CategoryTag :expense="activeExpense"></CategoryTag>
+      </div>
+    </template>
     <template #content>
       <Message v-if="validationErrorMsg" severity="error" @close="validationErrorMsg = ''">
         {{ validationErrorMsg }}
@@ -52,6 +60,7 @@
 </template>
 
 <script lang="ts">
+import CategoryTag from '../CategoryTag.vue';
 import Card from 'primevue/card';
 import { PropType, defineComponent, ref, watch } from 'vue';
 import InputText from 'primevue/inputtext';
@@ -82,6 +91,7 @@ export default defineComponent({
     Card,
     Button,
     Message,
+    CategoryTag,
   },
 
   props: {

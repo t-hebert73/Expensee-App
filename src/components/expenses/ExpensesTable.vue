@@ -3,30 +3,19 @@
     <template #content>
       <div class="flex gap-2 justify-content-between mb-5">
         <div>Create, edit and remove your expenses.</div>
-        <Button
-          @click="navigateToCreateExpense"
-          rounded
-          label="New Expense"
-        ></Button>
+        <Button @click="navigateToCreateExpense" rounded label="New Expense"></Button>
       </div>
-      <DataTable
-        :value="expenses"
-        stripedRows
-        tableStyle="width: 100%; border-spacing: 0; border-collapse: initial;"
-      >
+      <DataTable :value="expenses" stripedRows tableStyle="width: 100%; border-spacing: 0; border-collapse: initial;">
+        <Column field="counter" style="width: 100px">
+          <template #body="{ index }"> {{ index + 1 }}</template>
+        </Column>
         <Column field="name" header="Name"></Column>
         <Column field="category" header="Category"></Column>
         <Column field="provider" header="Provider"></Column>
         <Column field="frequency" header="Frequency"></Column>
         <Column field="action" header="Action" style="width: 350px">
           <template #body="{ data, index }">
-            <Button
-              @click="navigateToEditExpense(data)"
-              label="Edit"
-              rounded
-              size="small"
-              class="mr-3"
-            ></Button>
+            <Button @click="navigateToEditExpense(data)" label="Edit" rounded size="small" class="mr-3"></Button>
             <Button
               @click="navigateToEditPayments(data)"
               severity="success"
@@ -121,11 +110,7 @@ export default defineComponent({
     const deleteExpenseMutation = useMutation(DeleteExpenseDocument);
     const confirm = useConfirm();
 
-    const deleteExpense = async (
-      event: any,
-      expense: Expense,
-      index: number
-    ) => {
+    const deleteExpense = async (event: any, expense: Expense, index: number) => {
       confirm.require({
         target: event.currentTarget,
         message: 'Do you want to delete this record?',
@@ -136,15 +121,11 @@ export default defineComponent({
             id: parseInt(expense.id),
           };
 
-          const result = await deleteExpenseMutation.executeMutation(
-            mutationVars
-          );
+          const result = await deleteExpenseMutation.executeMutation(mutationVars);
 
           const toastSeverity = result.error ? 'error' : 'success';
           const toastSummary = result.error ? 'Error' : 'Success';
-          const toastDetail = result.error
-            ? result.error.graphQLErrors[0].message
-            : 'Successfully deleted expense';
+          const toastDetail = result.error ? result.error.graphQLErrors[0].message : 'Successfully deleted expense';
 
           toast.add({
             severity: toastSeverity,
