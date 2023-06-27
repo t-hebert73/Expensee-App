@@ -15,7 +15,11 @@
         type="line"
         :data="chartData"
         :style="chartStyles"
-        :options="{ responsive: true, maintainAspectRatio: false }"
+        :options="{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: { callbacks: chartJsTooltipCallbacks } },
+        }"
       />
       <p class="text-center mt-5 mb-5" v-else>No data available for selected time period.</p>
     </template>
@@ -219,10 +223,27 @@ export default defineComponent({
       }
     );
 
+    const chartJsTooltipCallbacks = () => {
+      return {
+        label: function (context: any) {
+          let label = context.dataset.label || '';
+
+          if (label) {
+            label += ': ';
+          }
+          if (context.parsed.y !== null) {
+            label += new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(context.parsed.y);
+          }
+          return label;
+        },
+      };
+    };
+
     return {
       shouldGroupDataByMonth,
       chartData,
       chartStyles,
+      chartJsTooltipCallbacks,
     };
   },
 });
