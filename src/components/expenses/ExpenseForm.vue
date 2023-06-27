@@ -120,9 +120,10 @@ export default defineComponent({
     );
 
     const availableCategories = [
-      { name: 'Utility', value: 'Utilities' },
+      { name: 'Insurance', value: 'Insurances' },
       { name: 'Mortgage', value: 'Mortgages' },
       { name: 'Tax', value: 'Taxes' },
+      { name: 'Utility', value: 'Utilities' },
     ];
 
     const availableFrequencies = [
