@@ -48,3 +48,8 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+a
+  color: #05668D
+</style>

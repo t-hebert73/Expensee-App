@@ -5,11 +5,7 @@
         <h1 class="mb-5">Sign in</h1>
 
         <form class="">
-          <Message
-            v-if="errorMessage"
-            severity="error"
-            @close="errorMessage = ''"
-          >
+          <Message v-if="errorMessage" severity="error" @close="errorMessage = ''">
             {{ errorMessage }}
           </Message>
           <div class="field">
@@ -21,18 +17,7 @@
             <InputText id="password" type="password" v-model="password" />
           </div>
 
-          <div>
-            {{ jwtObj.tokens }}
-          </div>
-
-          <Button
-            type="submit"
-            @click.prevent="login"
-            class="p-button-primary mt-5"
-            rounded
-          >
-            Sign in
-          </Button>
+          <Button type="submit" @click.prevent="login" class="p-button-primary mt-5" rounded> Sign in </Button>
         </form>
       </div>
     </section>
@@ -80,9 +65,7 @@ export default defineComponent({
     };
 
     const errorMessage = computed(() => {
-      return auth.alert?.message
-        ? auth.alert.message
-        : validationErrorMsg.value;
+      return auth.alert?.message ? auth.alert.message : validationErrorMsg.value;
     });
 
     return {

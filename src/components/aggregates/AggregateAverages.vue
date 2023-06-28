@@ -3,7 +3,7 @@
     <template #title>
       <div class="flex justify-content-between">
         <div class="text-2xl text-900">Average cost per month</div>
-        <label class="group-data-switch">
+        <label class="group-data-switch" v-if="!hideCategory">
           <span>Group data by category</span>
           <InputSwitch v-model="shouldGroupDataByCategory" />
         </label>
@@ -24,6 +24,12 @@
               {{ dataset.expense?.provider }}
               <CategoryTag v-if="dataset.expense" :expense="dataset.expense"></CategoryTag>
             </div>
+            <RouterLink
+              :to="{ name: 'view.expense', params: { id: dataset.expense.id } }"
+              class="block mt-2"
+              v-if="dataset.expense"
+              >More details</RouterLink
+            >
           </div>
         </div>
         <div class="value text-2xl font-bold text-900">
@@ -43,6 +49,7 @@ import InputSwitch from 'primevue/inputswitch';
 import { Expense } from '@/graphql/generated';
 import { PropType, defineComponent, watch, ref } from 'vue';
 import { frequenciesMap } from './definitions';
+import { RouterLink } from 'vue-router';
 
 type IAvgDataSet = {
   name: string;
@@ -62,12 +69,16 @@ type ICategoryDataSet = {
 export default defineComponent({
   name: 'AggregateAverages',
 
-  components: { Card, CategoryTag, InputSwitch },
+  components: { Card, CategoryTag, InputSwitch, RouterLink },
 
   props: {
     expenses: {
       type: Array as PropType<Expense[]>,
       required: true,
+    },
+    hideCategory: {
+      type: Boolean,
+      default: false,
     },
   },
 

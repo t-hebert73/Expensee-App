@@ -21,16 +21,9 @@
                 <span>{{ pageTitle }}</span>
               </div>
               <a href="#" @click.prevent="toggle" class="user">
-                <Avatar icon="pi pi-user" shape="circle" /><span class="ml-2">{{
-                  user.name
-                }}</span>
+                <Avatar icon="pi pi-user" shape="circle" /><span class="ml-2">{{ user.name }}</span>
               </a>
-              <Menu
-                id="overlay_menu"
-                ref="menu"
-                :model="dropdownItems"
-                :popup="true"
-              />
+              <Menu id="overlay_menu" ref="menu" :model="dropdownItems" :popup="true" />
             </div>
           </div>
         </div>

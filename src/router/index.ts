@@ -102,6 +102,14 @@ const router = createRouter({
             title: 'Edit Payment',
           },
         },
+        {
+          path: '/expenses/:id',
+          name: 'view.expense',
+          component: () => import('@/views/ExpenseDetailsView.vue'),
+          meta: {
+            title: 'View Expense',
+          },
+        },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: { name: 'login' } },

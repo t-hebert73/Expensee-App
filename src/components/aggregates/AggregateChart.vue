@@ -64,9 +64,6 @@ export default defineComponent({
       type: Array as PropType<Expense[]>,
       required: true,
     },
-    selectedDates: {
-      type: Array as PropType<Date[] | null>,
-    },
   },
 
   setup(props) {
@@ -74,7 +71,7 @@ export default defineComponent({
     const shouldGroupDataByMonth = ref(false);
 
     const dateFormat = computed(() => {
-      return shouldGroupDataByMonth.value ? 'MMMM' : 'MMMM YYYY';
+      return shouldGroupDataByMonth.value ? 'MMMM' : 'MMM YYYY';
     });
 
     const datasets = ref<IDataSet[]>([]);

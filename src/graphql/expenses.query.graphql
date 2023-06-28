@@ -20,7 +20,7 @@ query getExpense($id: Int!) {
   }
 }
 
-query getExpenseWithPayments($id: Int!) {
+query getExpenseWithPayments($id: Int!, $paidAtDateRange: DateRangeInput) {
   expense(id: $id) {
     id
     name
@@ -28,7 +28,7 @@ query getExpenseWithPayments($id: Int!) {
     category
     provider
     createdAt
-    payments {
+    payments(paidAtDateRange: $paidAtDateRange) {
       id
       amount
       paidAt

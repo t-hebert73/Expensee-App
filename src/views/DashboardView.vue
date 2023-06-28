@@ -4,23 +4,12 @@
       <div class="col-12 mb-5">
         <Card>
           <template #content>
-            <div class="flex justify-content-between">
-              <Calendar
-                v-model="selectedDates"
-                selectionMode="range"
-                dateFormat="mm/yy"
-                view="month"
-                :manualInput="false"
-                :hideOnRangeSelection="true"
-                placeholder="Date Range"
-              />
-              <div class="text-2xl text-900">{{ title }}</div>
-            </div>
+            <DateRangeSelector @datesSelected="onDateRangeSelected"></DateRangeSelector>
           </template>
         </Card>
       </div>
       <div class="col-12">
-        <AggregateChart :expenses="expenses" :selectedDates="selectedDates" />
+        <AggregateChart :expenses="expenses" />
       </div>
 
       <div class="col-12 mt-3 mb-5">
@@ -32,11 +21,11 @@
 
 <script lang="ts">
 import Card from 'primevue/card';
-import Calendar from 'primevue/calendar';
 import AggregateChart from '../components/aggregates/AggregateChart.vue';
 import AggregateAverages from '../components/aggregates/AggregateAverages.vue';
-import { computed, defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useQuery } from '@urql/vue';
+import DateRangeSelector from '@/components/DateRangeSelector.vue';
 import moment from 'moment';
 import { Expense, GetExpensesWithPaymentsDocument, GetExpensesWithPaymentsQueryVariables } from '@/graphql/generated';
 
@@ -50,7 +39,7 @@ type IFetchExpensesParams = {
 export default defineComponent({
   name: 'DashboardView',
 
-  components: { Card, Calendar, AggregateChart, AggregateAverages },
+  components: { Card, DateRangeSelector, AggregateChart, AggregateAverages },
 
   setup() {
     const expenses = ref<Expense[]>([]);
@@ -88,28 +77,15 @@ export default defineComponent({
       };
     };
 
-    const selectedDates = ref<Date[] | null>(null);
-    watch(
-      () => selectedDates.value,
-      (selectedDates) => {
-        if (!selectedDates || !selectedDates[0] || !selectedDates[1]) return;
-
-        fetchExpenses({
-          dateRange: { start: selectedDates[0], end: selectedDates[1] },
-        });
-      }
-    );
-
     fetchExpenses();
 
-    const title = computed(() => {
-      if (!selectedDates.value || !selectedDates.value[0] || !selectedDates.value[1]) return 'All Data';
-      return `${moment(selectedDates.value[0]).format('MMM D0 YYYY')} to ${moment(selectedDates.value[1]).format(
-        'MMM D0 YYYY'
-      )}`;
-    });
+    const onDateRangeSelected = (dates: any) => {
+      fetchExpenses({
+        dateRange: { start: dates.start, end: dates.end },
+      });
+    };
 
-    return { expenses, selectedDates, title };
+    return { expenses, onDateRangeSelected };
   },
 });
 </script>

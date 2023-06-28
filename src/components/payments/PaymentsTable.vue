@@ -3,7 +3,7 @@
     <template #title>
       <div class="flex gap-2 justify-content-between mb-5">
         <div class="flex text-600 align-items-center">
-          <div class="title">{{ expense.name }} - {{ expense.provider }}</div>
+          <div class="title">{{ expense.name }} - {{ expense.provider }} Payments</div>
           <CategoryTag :expense="expense"></CategoryTag>
         </div>
 
