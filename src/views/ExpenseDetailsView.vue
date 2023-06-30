@@ -1,13 +1,13 @@
 <template>
   <div class="col-12 mb-3">
     <Card>
-      <template #content v-if="expense">
+      <template #content>
         <div class="flex justify-content-around align-items-center">
           <div class="name text-2xl text-900 text-left" style="width: 33%">
-            {{ expense.name }}<CategoryTag :expense="expense"></CategoryTag>
+            {{ expense?.name }}<CategoryTag v-if="expense" :expense="expense"></CategoryTag>
           </div>
-          <div class="frequency text-xl text-900 text-center" style="width: 33%">{{ expense.frequency }}</div>
-          <div class="text-2xl text-900 provider text-right" style="width: 33%">{{ expense.provider }}</div>
+          <div class="frequency text-xl text-900 text-center" style="width: 33%">{{ expense?.frequency }}</div>
+          <div class="text-2xl text-900 provider text-right" style="width: 33%">{{ expense?.provider }}</div>
         </div>
       </template>
     </Card>
