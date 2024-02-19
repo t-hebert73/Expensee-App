@@ -71,6 +71,14 @@ const router = createRouter({
           },
         },
         {
+          path: '/manage/import',
+          name: 'import.payments',
+          component: () => import('@/views/ManagePaymentsImportView.vue'),
+          meta: {
+            title: 'Import Payments',
+          },
+        },
+        {
           path: '/manage/:id',
           name: 'edit.expense',
           component: () => import('@/views/ManageExpenseView.vue'),

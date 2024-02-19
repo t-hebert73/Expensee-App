@@ -71,3 +71,11 @@ mutation deleteExpense($id: Int!) {
     id
   }
 }
+
+mutation importPayments($file: File!, $type: ImportType!) {
+  importPayments(file: $file, type: $type) {
+    status
+    total
+    totalImported
+  }
+}

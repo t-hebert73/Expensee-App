@@ -3,7 +3,17 @@
     <template #content>
       <div class="flex gap-2 justify-content-between mb-5">
         <div>Create, edit and remove your expenses.</div>
-        <Button @click="navigateToCreateExpense" rounded label="New Expense"></Button>
+        <div>
+          <Button @click="navigateToCreateExpense" rounded label="New Expense" icon="pi pi-plus-circle"></Button>
+          <Button
+            class="ml-3"
+            @click="navigateToImportPayments"
+            rounded
+            severity="warning"
+            label="Import Payments"
+            icon="pi pi-upload"
+          ></Button>
+        </div>
       </div>
       <DataTable :value="expenses" stripedRows tableStyle="width: 100%; border-spacing: 0; border-collapse: initial;">
         <Column field="counter" style="width: 100px">
@@ -90,6 +100,12 @@ export default defineComponent({
       });
     };
 
+    const navigateToImportPayments = () => {
+      router.push({
+        name: 'import.payments',
+      });
+    };
+
     const navigateToEditExpense = (expense: Expense) => {
       router.push({
         name: 'edit.expense',
@@ -142,6 +158,7 @@ export default defineComponent({
     return {
       expenses,
       navigateToCreateExpense,
+      navigateToImportPayments,
       navigateToEditExpense,
       navigateToEditPayments,
       deleteExpense,

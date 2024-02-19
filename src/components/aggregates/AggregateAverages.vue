@@ -169,6 +169,7 @@ export default defineComponent({
     };
 
     const calculateTotal = () => {
+      if (!averagesDataSet.value.length) return;
       const totalAvgValue = averagesDataSet.value
         .map((dataset) => dataset.value)
         .reduce((accumulator, val) => accumulator + val);
